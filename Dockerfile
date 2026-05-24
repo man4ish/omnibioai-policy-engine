@@ -28,7 +28,9 @@ RUN pip install --no-cache-dir \
     uvicorn \
     "redis[asyncio]" \
     pydantic \
-    starlette
+    starlette \
+    swagger-ui-bundle \
+    aiofiles
 
 # Copy the policy-engine service source.
 COPY omnibioai-policy-engine .
