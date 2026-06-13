@@ -110,4 +110,9 @@ SwaggerUIBundle({{
     return HTMLResponse(html)
 
 
+@app.get("/health", include_in_schema=False)
+async def health():
+    return {"status": "ok"}
+
+
 app.include_router(router, prefix="/policy")
