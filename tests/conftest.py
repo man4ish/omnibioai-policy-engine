@@ -1,5 +1,19 @@
-import pytest
+import os
+import sys
+import tempfile
 from unittest.mock import MagicMock, patch
+
+# swagger_ui_bundle is an optional runtime dependency. Mock it before any
+# app.main import so tests run without the package installed.
+if "swagger_ui_bundle" not in sys.modules:
+    _mock_swagger_dir = tempfile.mkdtemp()
+    open(os.path.join(_mock_swagger_dir, "swagger-ui-bundle.js"), "w").close()
+    open(os.path.join(_mock_swagger_dir, "swagger-ui.css"), "w").close()
+    _mock_swagger = MagicMock()
+    _mock_swagger.swagger_ui_path = _mock_swagger_dir
+    sys.modules["swagger_ui_bundle"] = _mock_swagger
+
+import pytest
 
 
 @pytest.fixture
