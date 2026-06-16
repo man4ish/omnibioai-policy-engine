@@ -109,6 +109,41 @@ POST /policy/evaluate
 
 ---
 
+## Running
+
+### Via OmniBioAI Studio (recommended)
+
+```bash
+cd ~/Desktop/machine/omnibioai-studio
+docker compose up -d policy-engine
+```
+
+Access (internal only — not exposed externally):
+`http://policy-engine:8001` (Docker internal network)
+
+### Standalone (development)
+
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+### Health check
+
+```bash
+curl http://localhost:8001/health
+# {"status": "ok"}
+```
+
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REDIS_URL` | `redis://redis:6379` | Redis for policy cache |
+| `OPA_URL` | — | Optional OPA backend URL |
+
+---
+
 ## 🧠 Policy Evaluation Flow
 
 1. **RBAC check**
@@ -137,6 +172,19 @@ This service is used by:
 * Workbench (dataset access control)
 * Studio (pipeline execution control)
 * IAM Client (future cached policy decisions)
+
+---
+
+## Testing
+
+```bash
+cd ~/Desktop/machine/omnibioai-policy-engine
+pytest tests/ -v --cov=.
+
+# 48 tests passing
+# 93% coverage
+# Covers: RBAC, ABAC, rule engine, cache, policy service, routes
+```
 
 ---
 
@@ -170,13 +218,16 @@ This service is used by:
 
 ---
 
-## 🔮 Future Enhancements
+## Roadmap
 
-* Redis caching for policy decisions
-* OPA (Open Policy Agent) integration
-* Policy versioning system
-* Org-level multi-tenancy
-* Audit logging integration
+| Feature | Status |
+|---------|--------|
+| Redis caching for policy decisions | ✓ Implemented |
+| RBAC/ABAC evaluation | ✓ Stable |
+| Custom rule engine | ✓ Stable |
+| OPA (Open Policy Agent) backend | Planned |
+| Policy versioning system | Planned |
+| Org-level multi-tenancy | Planned v0.5 |
 
 ---
 
@@ -186,7 +237,19 @@ This service is used by:
 * Python 3.11+
 * Pydantic models
 * Pluggable RBAC/ABAC engine
-* Optional Redis caching (future)
+* Redis caching (implemented)
+
+---
+
+## Related Services
+
+| Service | Role |
+|---------|------|
+| `omnibioai-api-gateway` | Calls `/policy/evaluate` on every request |
+| `omnibioai-auth` | Provides identity (roles/permissions) to policy engine |
+| `omnibioai-hpc-policy-engine` | Handles compute-specific governance |
+| `omnibioai-security-audit` | Receives policy decision audit events |
+| `omnibioai-studio` | Manages policy-engine container lifecycle |
 
 ---
 
